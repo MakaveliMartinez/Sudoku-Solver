@@ -1,6 +1,10 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 class Board():
     def __init__(self):
 
+        self.calls = [[0] * 9 for _ in range(9)] #Board of the same shape to keep track of recusrive calls by cell
         self.board = [
                         [5, 3, 0, 0, 7, 0, 0, 0, 0],
                         [6, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -12,9 +16,35 @@ class Board():
                         [0, 0, 0, 4, 1, 9, 0, 0, 5],
                         [0, 0, 0, 0, 8, 0, 0, 7, 9]
                     ]
+
+    """
+    Using a heatmap to display where the most recursion calls happen on the board
+    """
+    def show_calls_heatmap(self):
+        data = np.array(self.calls)
+
+        plt.imshow(data,cmap ="hot", interpolation = "nearest")
+        plt.colorbar(label = "Recursive Calls")
+        plt.title("Sudoku Solver Recursion Heat Map")
+
+        for i in range(9):
+            for j in range(9):
+                val = data[i,j]
+                if val > 0:
+                    plt.text(j, i, str(val),
+                             ha="center", va="center",
+                             color="white", fontsize=8)
+        plt.show()
+    """
+    Function to return the value at a specific position 
+    """
     def get(self,row,col):
         return self.board[row][col]
 
+
+    """
+    Function to set the value of a position on the board
+    """
     def set(self,row,col,val):
         if not  (0<= row < 9 and 0 <= col < 9): #This make sure we saty within the bounds of the board
             raise IndexError("Row and column must be between 0 and 8")
@@ -22,12 +52,18 @@ class Board():
             raise ValueError("Value must be between 0 and 9")
         self.board[row][col] = val
 
+    """
+    A check to see if a specific cell on a board is empty denoted by a "0"
+    """
     def is_empty(self,row,col):
         if self.board[row][col] == 0:
             return True
         else:
             return False
 
+    """
+    Finding the next empty cell
+    """
     def findEmpty(self):
         for r in range(9):
             for c in range(9):
@@ -59,6 +95,26 @@ class Board():
                 if self.board[i][j] == val:
                     return False
         return True
+
+    """
+    Printing how many times each cell is called recusrivel by using a similar board where the cell represents
+    how many recursive calls where used to find that solution
+    """
+    def print_calls(self):
+        lines = ["+---------------------------+---------------------------+---------------------------+"]
+        for r in range(9):
+            row_str = ""
+            for c in range(9):
+                if c % 3 == 0:
+                    row_str += "| "
+                val = self.calls[r][c]
+                # right-align each number in width 4
+                row_str += (str(val).rjust(4) if val > 0 else "   .") + " "
+            row_str += "|"
+            lines.append(row_str)
+            if (r + 1) % 3 == 0:
+                lines.append("+---------------------------+---------------------------+---------------------------+")
+        print("\n".join(lines))
 
     def __str__(self):
         lines = ["+-------+-------+-------+"]
