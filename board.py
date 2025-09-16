@@ -16,6 +16,10 @@ class Board():
         return self.board[row][col]
 
     def set(self,row,col,val):
+        if not  (0<= row < 9 and 0 <= col < 9): #This make sure we saty within the bounds of the board
+            raise IndexError("Row and column must be between 0 and 8")
+        if not (0<= val <= 9 ): #makes sure the values we input are from 0 -> 9 we have to include zeor setting to zero
+            raise ValueError("Value must be between 0 and 9")
         self.board[row][col] = val
 
     def is_empty(self,row,col):
@@ -34,6 +38,27 @@ class Board():
     def isComplete(self):
         return self.findEmpty() is None #if we get none evaluated to true meaning no empty cells and the board is complete
 
+    def clear(self,row,col):
+        self.board[row][col] = 0
+
+    #Checking of valid moves, first checking the value itself, then row, column , and finally the subgrid
+    def isValidMove(self,row,col,val):
+        if not(1<= val <=9 ) or self.board[row][col] != 0:
+            return False
+        #This checks the row
+        if any(self.board[row][j] == val for j in range(9)):
+            return False
+        #This checks the column
+        if any(self.board[i][col] == val for i in range(9)):
+            return False
+
+        #This checks the sub grids
+        br, bc = (row//3) * 3 , (col // 3) * 3
+        for i in range(br, br+3):
+            for j in range(bc, bc+3):
+                if self.board[i][j] == val:
+                    return False
+        return True
 
     def __str__(self):
         lines = ["+-------+-------+-------+"]
